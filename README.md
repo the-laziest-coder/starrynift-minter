@@ -1,9 +1,9 @@
 # Starrynift minter
 
- - Mint Starrynift NFT
+ - Mint Starrynift Citizenship NFT: https://starrynift.art
 
 ### Settings
-`files/wallets.txt` - Wallets with private keys \
+`files/wallets.txt` - Private keys \
 `files/proxies.txt` - Corresponding proxies for wallets \
 `config.py` - Custom settings \
 `vars.py` - Contracts info 
