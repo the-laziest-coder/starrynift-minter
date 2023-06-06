@@ -1,6 +1,6 @@
 # Starrynift minter
 
- - Mint Starrynift Citizenship NFT: https://starrynift.art
+ - Mint Starrynift Citizenship NFT: https://starrynift.art/Citizen 
 
 ### Settings
 `files/wallets.txt` - Private keys \
