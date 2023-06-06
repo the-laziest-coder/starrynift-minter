@@ -99,9 +99,10 @@ def runner_func(msg):
 
 
 class Status(Enum):
-    PENDING = 1
-    SUCCESS = 2
-    FAILED = 3
+    ALREADY = 1
+    PENDING = 2
+    SUCCESS = 3
+    FAILED = 4
 
 
 class Runner:
@@ -238,7 +239,13 @@ class Runner:
 
         mint_signature = self.sign()
 
-        tx_hash = self.mint(mint_signature)
+        try:
+            tx_hash = self.mint(mint_signature)
+        except RunnerException as e:
+            if 'Card already minted for this category' in str(e):
+                return Status.ALREADY
+            else:
+                raise
 
         self.mint_confirm(tx_hash.hex())
 
@@ -280,7 +287,11 @@ def log_run(address, account, status, exc=None, msg=''):
 
     account = (address, ) + account
 
-    if status == Status.PENDING:
+    if status == Status.ALREADY:
+        summary_msg = 'Already minted'
+        color = 'green'
+        write_result('already.txt', account)
+    elif status == Status.PENDING:
         summary_msg = 'Tx in pending: ' + exc_msg
         color = 'yellow'
         write_result('pending.txt', account)
