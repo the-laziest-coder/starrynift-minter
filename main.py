@@ -137,7 +137,7 @@ class Runner:
     @runner_func('Tx error')
     def tx_verification(self, chain, tx_hash, action=None):
         action_print = action + ' - ' if action else ''
-        logger.print(f'{action_print}Tx sent')
+        logger.print(f'{action_print}Tx was sent')
         try:
             transaction_data = self.w3(chain).eth.wait_for_transaction_receipt(tx_hash, timeout=TX_WAIT_TIME)
             status = transaction_data.get('status')
