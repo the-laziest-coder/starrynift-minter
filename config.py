@@ -8,7 +8,7 @@ RPCs = {
 NEXT_ADDRESS_MIN_WAIT_TIME = 1  # В минутах
 NEXT_ADDRESS_MAX_WAIT_TIME = 2  # В минутах
 
-# Время ожидания между транзакциями одного аккаунта
+# Время ожидания между действиями одного аккаунта
 NEXT_TX_MIN_WAIT_TIME = 6   # В секундах
 NEXT_TX_MAX_WAIT_TIME = 12  # В секундах
 
@@ -29,5 +29,5 @@ TX_WAIT_TIME = 300
 # Токен и chat id бота в тг. Можно оставить пустым.
 TELEGRAM_BOT_TOKEN = ''
 TELEGRAM_CHAT_ID = 0
-# При true, скрипт выдает ваш chat id для отправки сообщений в боте. Бриджи не запускаются
+# При True, скрипт только выдает ваш chat id для отправки сообщений в боте.
 GET_TELEGRAM_CHAT_ID = False

@@ -42,6 +42,10 @@ def wait_next_tx():
     time.sleep(random.uniform(NEXT_TX_MIN_WAIT_TIME, NEXT_TX_MAX_WAIT_TIME))
 
 
+def _delay(r, *args, **kwargs):
+    time.sleep(random.uniform(1, 2))
+
+
 class RunnerException(Exception):
 
     def __init__(self, message, caused=None):
@@ -118,6 +122,7 @@ class Runner:
         self.sess = requests.Session()
         self.sess.proxies = {'http': self.proxy, 'https': self.proxy}
         self.sess.headers = get_default_headers(self.address)
+        self.sess.hooks['response'].append(_delay)
 
     def w3(self, chain):
         return self.w3s[chain]
@@ -131,6 +136,7 @@ class Runner:
     @runner_func('Tx error')
     def tx_verification(self, chain, tx_hash, action=None):
         action_print = action + ' - ' if action else ''
+        logger.print(f'{action_print}Tx sent')
         try:
             transaction_data = self.w3(chain).eth.wait_for_transaction_receipt(tx_hash, timeout=TX_WAIT_TIME)
             status = transaction_data.get('status')
@@ -264,21 +270,28 @@ def wait_next_run(idx, runs_count):
     time.sleep(wait)
 
 
-def log_run(account, status, exc=None, msg='', report_failed=False):
+def write_result(filename, account):
+    with open(f'{results_path}/{filename}', 'a') as file:
+        file.write(f'{"|".join(list(account))}\n')
+
+
+def log_run(address, account, status, exc=None, msg=''):
     exc_msg = '' if exc is None else str(exc)
+
+    account = (address, ) + account
 
     if status == Status.PENDING:
         summary_msg = 'Tx in pending: ' + exc_msg
         color = 'yellow'
+        write_result('pending.txt', account)
     elif status == Status.SUCCESS:
         summary_msg = 'Run success'
         color = 'green'
+        write_result('success.txt', account)
     else:
         summary_msg = 'Run failed: ' + exc_msg
         color = 'red'
-        if report_failed:
-            with open(f'{results_path}/failed.txt', 'a') as file:
-                file.write(f'{"|".join(list(account))}\n')
+        write_result('failed.txt', account)
 
     logger.print(summary_msg, color=color)
 
@@ -325,10 +338,14 @@ def main():
         else:
             key = wallet.split(';')[1]
 
+        runner = Runner(key, proxy)
+
+        address = runner.address
+
         exc = None
 
         try:
-            status = Runner(key, proxy).run()
+            status = runner.run()
         except PendingException as e:
             status = Status.PENDING
             exc = e
@@ -340,9 +357,7 @@ def main():
             status = Status.FAILED
             exc = e
 
-        report_failed = status == Status.FAILED
-
-        log_run(account, status, exc=exc, report_failed=report_failed)
+        log_run(address, account, status, exc=exc)
 
         idx += 1
 
