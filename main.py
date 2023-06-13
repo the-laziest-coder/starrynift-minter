@@ -158,10 +158,13 @@ class Runner:
         })
         if resp_raw.status_code != 200:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
-        resp = resp_raw.json()
-        if resp['code'] != 200:
+        try:
+            resp = resp_raw.json()
+            if resp['code'] != 200:
+                raise RunnerException(f'response = {resp_raw.text}')
+            return resp['data']['message']
+        except Exception:
             raise RunnerException(f'response = {resp_raw.text}')
-        return resp['data']['message']
 
     @runner_func('Login')
     def login(self, signature):
@@ -171,10 +174,13 @@ class Runner:
         })
         if resp_raw.status_code != 200:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
-        resp = resp_raw.json()
-        if resp['code'] != 200:
+        try:
+            resp = resp_raw.json()
+            if resp['code'] != 200:
+                raise RunnerException(f'response = {resp_raw.text}')
+            return resp['data']['token']
+        except Exception:
             raise RunnerException(f'response = {resp_raw.text}')
-        return resp['data']['token']
 
     @runner_func('Sign')
     def sign(self):
@@ -183,7 +189,10 @@ class Runner:
         })
         if resp_raw.status_code != 201:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
-        return resp_raw.json()['signature']
+        try:
+            return resp_raw.json()['signature']
+        except Exception:
+            raise RunnerException(f'response = {resp_raw.text}')
 
     @runner_func('Mint confirm')
     def mint_confirm(self, tx_hash):
@@ -192,7 +201,10 @@ class Runner:
         })
         if resp_raw.status_code != 201:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
-        if resp_raw.json()['ok'] != 1:
+        try:
+            if resp_raw.json()['ok'] != 1:
+                raise RunnerException(f'response = {resp_raw.text}')
+        except Exception:
             raise RunnerException(f'response = {resp_raw.text}')
 
     @runner_func('Mint')
