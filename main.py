@@ -331,9 +331,9 @@ def main():
 
     random.seed(int(datetime.now().timestamp()))
 
-    with open('files/wallets.txt', 'r') as file:
+    with open('files/wallets.txt', 'r', encoding='utf-8') as file:
         wallets = file.read().splitlines()
-    with open('files/proxies.txt', 'r') as file:
+    with open('files/proxies.txt', 'r', encoding='utf-8') as file:
         proxies = file.read().splitlines()
 
     if len(proxies) == 0:
