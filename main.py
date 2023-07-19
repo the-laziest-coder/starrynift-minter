@@ -106,9 +106,7 @@ class Status(Enum):
 
 
 class Runner:
-
-    STARRYNIFT_API_URL = 'https://starrynift.art/api'
-    STARRYNIFT_API_URL_V2 = 'https://starrynift.art/api-v2'
+    STARRYNIFT_API_URL_V2 = 'https://api.starrynift.art/api-v2'
 
     def __init__(self, private_key, proxy):
         if proxy is not None and len(proxy) > 4 and proxy[:4] != 'http':
@@ -153,32 +151,28 @@ class Runner:
 
     @runner_func('Challenge')
     def challenge(self):
-        resp_raw = self.sess.post(self.STARRYNIFT_API_URL + '/user/challenge', json={
-            'address': self.address.lower(),
-        })
+        resp_raw = self.sess.get(self.STARRYNIFT_API_URL_V2 +
+                                 f'/starryverse/auth/wallet/challenge?address={self.address.lower()}')
         if resp_raw.status_code != 200:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
         try:
             resp = resp_raw.json()
-            if resp['code'] != 200:
-                raise RunnerException(f'response = {resp_raw.text}')
-            return resp['data']['message']
+            return resp['message']
         except Exception:
             raise RunnerException(f'response = {resp_raw.text}')
 
     @runner_func('Login')
     def login(self, signature):
-        resp_raw = self.sess.post(self.STARRYNIFT_API_URL + '/user/login', json={
+        resp_raw = self.sess.post(self.STARRYNIFT_API_URL_V2 + '/starryverse/auth/wallet/evm/login', json={
             'address': self.address.lower(),
+            'referralSource': 0,
             'signature': signature,
         })
-        if resp_raw.status_code != 200:
+        if resp_raw.status_code != 200 and resp_raw.status_code != 201:
             raise RunnerException(f'status_code = {resp_raw.status_code}, response = {resp_raw.text}')
         try:
             resp = resp_raw.json()
-            if resp['code'] != 200:
-                raise RunnerException(f'response = {resp_raw.text}')
-            return resp['data']['token']
+            return resp['token']
         except Exception:
             raise RunnerException(f'response = {resp_raw.text}')
 
@@ -297,7 +291,7 @@ def write_result(filename, account):
 def log_run(address, account, status, exc=None, msg=''):
     exc_msg = '' if exc is None else str(exc)
 
-    account = (address, ) + account
+    account = (address,) + account
 
     if status == Status.ALREADY:
         summary_msg = 'Already minted'
